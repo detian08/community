@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--     
+ -*- coding: utf-8 -*-
+ Odoo, Open Source Personalized All in One Reports..
+ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). 
+-->
+<odoo> 
+	<template id="assets_backend" name="professional_reports_itmcs assets" inherit_id="web.assets_backend">
+		<xpath expr="." position="inside">
+			<link rel="stylesheet" href="/professional_reports_itmcs/static/src/css/widget.css"/>
+			<script type="text/javascript" src="/professional_reports_itmcs/static/lib/jscolor/jscolor.js"/>
+			<script type="text/javascript" src="/professional_reports_itmcs/static/src/js/widget.js"/>
+		</xpath>
+	</template>
+</odoo>

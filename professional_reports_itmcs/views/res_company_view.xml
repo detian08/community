@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--     
+ -*- coding: utf-8 -*-
+ Odoo, Open Source Personalized All in One Reports..
+ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). 
+-->
+<odoo> 
+	<data>
+		<record id="inherit_res_company_view" model="ir.ui.view">
+			<field name="name">inherit.res_company.view</field>
+			<field name="model">res.company</field>
+			<field name="inherit_id" ref="base.view_company_form" />
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<notebook position="inside">
+					<page string="Professional Template Configuration">
+						<group String ="Select Template">
+							<group >
+								<field name="temp_selection"/>
+								<field name="sale_header_footer" attrs="{'invisible': [('temp_selection','in',['odoo_standard','classic','vintage','retro','modern','modern','canva','professional','elegant','shine',False])]}"
+									widget="color"/>
+								<field name="primary_color" attrs="{'invisible': [('temp_selection','in',['odoo_standard',False])]}"
+									widget="color"/>
+								<field name="secondary_color" attrs="{'invisible': [('temp_selection','in',['odoo_standard','classic','vintage','modern','retro','modern','canva','professional','western','elegant','shine',False])]}"
+									widget="color"/>
+								
+								<field name="sale_font_color" attrs="{'invisible': [('temp_selection','in',['odoo_standard',False])]}"
+									widget="color"/>
+							</group>
+							<group>
+								<field name="add_watermark" attrs="{'invisible': [('temp_selection','in',['odoo_standard',False])]}"/>
+								
+								<field name="watermark_selection" attrs="{'invisible': ['|',('add_watermark', '=',
+									False), ('temp_selection','in',['odoo_standard',False])]}" />
+								<field name="custom_watermark_name" attrs="{'invisible': ['|','|',('add_watermark',
+									'=', False),('temp_selection','in',['odoo_standard',False]), ('watermark_selection','in',['letter_head','company_logo',False])]}"/>
+								
+								<field name="letter_head" attrs="{'invisible': ['|','|',('add_watermark', '=', False),('temp_selection','in',['odoo_standard',False]),
+									('watermark_selection','in',['company_logo','custom_name',False])]}"/>
+								
+								<field name="add_signature" attrs="{'invisible': [('temp_selection','in',['odoo_standard',False])]}"/>
+								
+								<field name="signature_logo" attrs="{'invisible': ['|','|',('add_signature', '=',
+									False),('temp_selection','in',['odoo_standard',False])]}"/>
+							</group>
+						</group>
+						<group>
+							<group>
+								<field name="add_product_image" attrs="{'invisible': [('temp_selection','in',['odoo_standard',False])]}"/>
+							</group>
+						</group>
+					</page>
+				</notebook>
+			</field>
+		</record>
+	</data>
+</odoo>

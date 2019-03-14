@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-
+<openerp>
+    <data>
+                
       <menuitem id="sms_parent_menu" parent="base.menu_custom" name="SMS" sequence="1"/>
         
-</odoo>
+    </data>
+</openerp>

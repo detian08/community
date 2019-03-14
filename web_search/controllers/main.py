@@ -11,7 +11,7 @@ class WebsiteSale(http.Controller):
         query = kw.get('query')
         names = query.split(' ')
         domain = ['|' for k in range(len(names) - 1)] + [('name', 'ilike', name) for name in names]
-        products = request.env['product.template'].search(domain, limit=15)
+        products = request.env['product.template'].search(domain)
         products = sorted(products, key=lambda x: SequenceMatcher(None, query.lower(), x.name.lower()).ratio(),
                           reverse=True)
         results = []

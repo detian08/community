@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import fields, models
-
+from openerp import api, fields, models
 
 class ResCountrySms(models.Model):
 

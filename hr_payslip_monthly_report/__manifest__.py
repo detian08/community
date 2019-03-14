@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-
 ##############################################################################
 #    Cybrosys Technologies Pvt. Ltd.
-#    Copyright (C) 2018-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
-#    Author: Cybrosys Technologies(<https://www.cybrosys.com>)
+#    Copyright (C) 2017-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
+#    Author: Nikhil krishnan(<https://www.cybrosys.com>)
 #    you can modify it under the terms of the GNU LESSER
 #    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
 #
@@ -20,10 +19,9 @@
 #    If not, see <https://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
 {
     'name': 'Payroll-Payslip Reporting',
-    'version': '12.0.1.0.0',
+    'version': '11.0.1.0.0',
     'summary': """Payslip Pivot View Report.""",
     'description': """Payslip monthly report.
     This module gives a pivot view for the HR managers. they can see all the 'NET' amount of payslips in all states""",

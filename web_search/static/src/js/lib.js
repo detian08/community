@@ -96,7 +96,7 @@
             serviceUrl: null,
             lookup: null,
             onSelect: null,
-            width: _compute_width,
+            width: '378px',
             minChars: 1,
             maxHeight: 300,
             deferRequestBy: 200,
@@ -112,7 +112,7 @@
             onSearchError: noop,
             preserveInput: false,
             containerClass: 'autocomplete-suggestions',
-            tabDisabled: true,
+            tabDisabled: false,
             dataType: 'text',
             currentRequest: null,
             triggerSelectOnValidInput: false,
@@ -125,10 +125,6 @@
             orientation: 'bottom',
             forceFixPosition: false
     };
-    function _compute_width(){
-        var x = $('input[name="search"]').width();
-        return x+58;
-    }
 
     function _lookupFilter(suggestion, originalQuery, queryLowerCase) {
         return suggestion.value.toLowerCase().indexOf(queryLowerCase) !== -1;
@@ -673,8 +669,6 @@
                 that.select(0);
                 return;
             }
-            // Set Width
-            $('.autocomplete-suggestions').width($('input[name="search"]').width() + 58);
 
             // Build suggestions inner HTML:
             $.each(that.suggestions, function (i, suggestion) {

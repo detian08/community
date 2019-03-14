@@ -22,12 +22,15 @@
 {
     "name": "MuK Scroll Up Button",
     "summary": """Button to jump to the top of the page.""",
-    "version": "12.0.1.1.0",
+    "description": """ 
+        Adds a button to the bottom of the page to jump back
+        up to the top of the page.
+    """,
+    "version": "11.0.1.1.0",
     "category": "Website",
     "license": "AGPL-3",
-    "author": "MuK IT",
     "website": "http://www.mukit.at",
-    'live_test_url': 'https://mukit.at/r/SgN',
+    "author": "MuK IT",
     "contributors": [
         "Mathias Markl <mathias.markl@mukit.at>",
     ],
@@ -36,7 +39,6 @@
     ],
     "data": [
         "template/assets.xml",
-        "template/layout.xml",
     ],
     "demo": [
     ],

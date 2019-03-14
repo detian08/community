@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<openerp>
+    <data>
 
         <record id="view_server_action_form_inherit_sms_frame" model="ir.ui.view">
             <field name="name">ir.actions.server.form.sms</field>
@@ -23,4 +24,5 @@
             </field>
         </record>
 
-</odoo>
+    </data>
+</openerp>

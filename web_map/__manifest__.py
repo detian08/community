@@ -8,7 +8,7 @@
 
 {
     'name': 'Web Map',
-    'version': '0.3',
+    'version': '0.2',
     'category': 'Extra Tools',
     'summary': 'Map widget',
     'description': """

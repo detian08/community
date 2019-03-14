@@ -26,7 +26,7 @@ ListRenderer.include({
     _renderGroups: function (data, groupLevel) {
     	var self = this;
     	var _self = this;
-    	groupLevel = groupLevel || 0;
+        groupLevel = groupLevel || 0;
         var result = [];
         var $tbody = $('<tbody>');
         _.each(data, function (group) {
@@ -45,10 +45,10 @@ ListRenderer.include({
                     var $records = _.map(group.data, function (record,index) {
                     	//Nilesh
                     	if (_self.mode !== 'edit' || _self.hasSelectors){
-                    		return self._renderRow(record).prepend($('<th>').html(index+1)); //.prepend($('<td>'));
+                    		return self._renderRow(record).prepend($('<th>').html(index+1)).prepend($('<td>'));
                     	}
                     	else{
-                    		return self._renderRow(record);
+                    		return self._renderRow(record).prepend($('<td>'));
                     	}
                     	
                     });
@@ -90,7 +90,26 @@ ListRenderer.include({
     	return $row;
     	
     },
+    /*_renderRows: function () {
+        var $rows = this._super();
+        var total_rows = $rows.length - 1;
+        var _self = this;
+        if (this.mode !== 'edit' || this.hasSelectors){
+        	$.each($rows,function(index){
+	        	var $row = $rows[index];
+	        	if (total_rows===index && _self.addCreateLine){
+	        		$row.prepend($('<th>').html('&nbsp;'));
+	        	}
+	        	else{
+	        		$row.prepend($('<th>').html(index+1));
+	        	}
+	        	});
+        }
+        
+        return $rows;
+    },*/
     
 }); 
 
 });
+

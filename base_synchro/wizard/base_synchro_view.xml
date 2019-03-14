@@ -37,7 +37,8 @@
         <field name="model">base.synchro</field>
         <field name="arch" type="xml">
             <form string="Synchronization Completed!">
-                <separator string="The synchronisation has been started. You will receive a request when it's done."/>
+                <label
+                        string="The synchronisation has been started. You will receive a request when it's done."/>
                 <footer>
                     <button string="Cancel" class="oe_link" special="cancel"/>
                 </footer>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<openerp>
+    <data>
 
       <record id="sms_message_view_form" model="ir.ui.view">
           <field name="name">sms.message.view.form</field>
@@ -103,4 +104,5 @@
       
       <menuitem id="sms_message_menu" name="Messages" parent="sms_parent_menu" action="sms_message_action" sequence="30"/>
    
-</odoo>
+   </data>
+</openerp>

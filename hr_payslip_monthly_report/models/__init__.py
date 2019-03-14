@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-
 ##############################################################################
 #
 #    Cybrosys Technologies Pvt. Ltd.
-#    Copyright (C) 2018-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
-#    Author: Cybrosys Technologies(<https://www.cybrosys.com>)
+#    Copyright (C) 2017-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
+#    Author: Nikhil krishnan(<https://www.cybrosys.com>)
 #    you can modify it under the terms of the GNU LESSER
 #    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
 #
@@ -21,7 +20,5 @@
 #    If not, see <https://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
 from . import hr_payroll_report
-
 

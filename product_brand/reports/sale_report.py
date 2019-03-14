@@ -8,14 +8,18 @@ class SaleReport(models.Model):
     _inherit = "sale.report"
 
     product_brand_id = fields.Many2one(
-        comodel_name='product.brand',
+        'product.brand',
         string='Brand',
     )
 
-    # pylint:disable=dangerous-default-value
-    def _query(self, with_clause='', fields={}, groupby='', from_clause=''):
-        fields['product_brand_id'] = ", t.product_brand_id as product_brand_id"
-        groupby += ', t.product_brand_id'
-        return super(SaleReport, self)._query(
-            with_clause, fields, groupby, from_clause
-        )
+    def _select(self):
+        select_str = super(SaleReport, self)._select()
+        select_str += """
+            , t.product_brand_id
+            """
+        return select_str
+
+    def _group_by(self):
+        group_by_str = super(SaleReport, self)._group_by()
+        group_by_str += ", t.product_brand_id"
+        return group_by_str

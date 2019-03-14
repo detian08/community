@@ -11,9 +11,11 @@ class BaseLanguageInstall(models.TransientModel):
     @api.multi
     def lang_install(self):
         self.ensure_one()
-        if self.overwrite:
-            self.env.cr.execute("""
-                delete from ir_translation
-                where lang=%s
-                """, (self.lang,))
+        self.env.cr.execute("""
+            delete from ir_translation
+            where (name='ir.module.module,shortdesc' 
+                    or name='ir.module.module,description' 
+                    or name='ir.module.module,summary')
+                and lang=%s
+            """, (self.lang,))
         return super(BaseLanguageInstall, self).lang_install()

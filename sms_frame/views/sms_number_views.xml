@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<openerp>
+    <data>
 
       <record id="sms_number_view_fornm" model="ir.ui.view">
           <field name="name">esms stored_numbers form view</field>
@@ -41,4 +42,5 @@
 
       <menuitem id="sms_number_menu" name="Mobile Numbers" parent="sms_parent_menu" action="sms_number_action" sequence="20"/>
    
-</odoo>
+   </data>
+</openerp>

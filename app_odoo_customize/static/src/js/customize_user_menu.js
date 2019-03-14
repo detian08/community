@@ -12,10 +12,10 @@ odoo.define('app_odoo_customize.UserMenu', function (require) {
     var UserMenu = require('web.UserMenu');
     //避免错误，要再定义
     var documentation_url = 'http://www.sunpop.cn';
-    var documentation_dev_url = 'http://www.sunpop.cn';
-    var support_url = 'http://www.sunpop.cn';
-    var account_title = 'My Account';
-    var account_url = 'http://www.sunpop.cn';
+    var documentation_dev_url;
+    var support_url;
+    var account_title;
+    var account_url;
 
     UserMenu.include({
         init: function () {
@@ -38,10 +38,9 @@ odoo.define('app_odoo_customize.UserMenu', function (require) {
                     } else {
                         a = '';
                     }
-                    lang_list += '<a role="menuitem" href="#" class="dropdown-item" data-lang-menu="lang" data-lang-id="' + lang['code']
-                        + '"><img class="flag" src="app_odoo_customize/static/src/img/flags/' + lang['code'] + '.png"/>' + lang['name'] + a + '</a>';
+                    lang_list += '<li><a href="#" data-lang-menu="lang" data-lang-id="' + lang['code'] + '"><img class="flag" src="app_odoo_customize/static/src/img/flags/' + lang['code'] + '.png"/>' + lang['name'] + a + '</a></li>';
                 });
-                lang_list += '<div role="separator" class="dropdown-divider"/>';
+                lang_list += '<li class="divider"></li>';
                 $('switch-lang').replaceWith(lang_list);
             })
 
@@ -68,23 +67,22 @@ odoo.define('app_odoo_customize.UserMenu', function (require) {
                     if (val.key == 'app_show_lang' && val.value == "False") {
                         $('switch-lang').hide();
                     }
-                    //注意， odoo12，主用户id=2, 加了个 __system__
-                    if (session.user_context.uid > 2 || (val.key == 'app_show_debug' && val.value == "False")) {
-                        $('[data-menu="debug"]').hide();
-                        $('[data-menu="debugassets"]').hide();
-                        $('[data-menu="quitdebug"]').hide();
+                    if (session.user_context.uid!=1 || (val.key == 'app_show_debug' && val.value == "False")) {
+                        $('[data-menu="debug"]').parent().hide();
+                        $('[data-menu="debugassets"]').parent().hide();
+                        $('[data-menu="quitdebug"]').parent().hide();
                     }
                     if (val.key == 'app_show_documentation' && val.value == "False") {
-                        $('[data-menu="documentation"]').hide();
+                        $('[data-menu="documentation"]').parent().hide();
                     }
                     if (val.key == 'app_show_documentation_dev' && val.value == "False") {
-                        $('[data-menu="documentation_dev"]').hide();
+                        $('[data-menu="documentation_dev"]').parent().hide();
                     }
                     if (val.key == 'app_show_support' && val.value == "False") {
-                        $('[data-menu="support"]').hide();
+                        $('[data-menu="support"]').parent().hide();
                     }
                     if (val.key == 'app_show_account' && val.value == "False") {
-                        $('[data-menu="account"]').hide();
+                        $('[data-menu="account"]').parent().hide();
                     }
                     if (val.key == 'app_account_title' && val.value) {
                         $('[data-menu="account"]').html(account_title);
@@ -103,7 +101,7 @@ odoo.define('app_odoo_customize.UserMenu', function (require) {
             var self = this;
             return this._super.apply(this, arguments).then(function () {
                 //语言切换特殊处理
-                self.$el.on('click', 'a[data-lang-menu]', function (ev) {
+                self.$el.on('click', 'li a[data-lang-menu]', function (ev) {
                     ev.preventDefault();
                     var f = self['_onMenuLang']
                     f.call(self, $(this));
@@ -115,11 +113,11 @@ odoo.define('app_odoo_customize.UserMenu', function (require) {
                 if (window.location.href.indexOf('debug=assets') != -1)
                     mMode = 'assets';
                 if (mMode == 'normal')
-                    $('[data-menu="quitdebug"]').hide();
+                    $('[data-menu="quitdebug"]').parent().hide();
                 if (mMode == 'debug')
-                    $('[data-menu="debug"]').hide();
+                    $('[data-menu="debug"]').parent().hide();
                 if (mMode == 'assets')
-                    $('[data-menu="debugassets"]').hide();
+                    $('[data-menu="debugassets"]').parent().hide();
             });
         },
         _onMenuAccount: function () {

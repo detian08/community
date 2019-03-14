@@ -9,3 +9,8 @@ page.
 You can publish/unpublish reviews from front end website page. 
 For that you must be logged in as Administrator.You will able to see Avg. Rating and No. of reviews link at the 
 top of partner detail page in website. By clicking on that you will redirect to reviews list
+
+Version 11.0.0.1 :
+		-Make correction when you opens a partner's profile.
+
+

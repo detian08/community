@@ -46,19 +46,11 @@ class BaseSynchro(models.TransientModel):
     """Base Synchronization."""
 
     _name = 'base.synchro'
-    _description = 'Base Synchronization'
 
-    server_url = fields.Many2one(
-        'base.synchro.server',
-        string='Server URL',
-        required=True
-    )
-    user_id = fields.Many2one(
-        'res.users',
-        string='Send Result To',
-        default=lambda self: self.env.user
-    )
-
+    server_url = fields.Many2one('base.synchro.server', "Server URL",
+                                 required=True)
+    user_id = fields.Many2one('res.users', "Send Result To",
+                              default=lambda self: self.env.user)
     report = []
     report_total = 0
     report_create = 0
@@ -245,10 +237,10 @@ class BaseSynchro(models.TransientModel):
 
     @api.multi
     def upload_download(self):
-        self.ensure_one()
         self.report = []
         start_date = time.strftime('%Y-%m-%d, %Hh %Mm %Ss')
-        server = self.server_url
+        syn_obj = self.browse(self.ids)[0]
+        server = self.env['base.synchro.server'].browse(syn_obj.server_url.id)
         for obj_rec in server.obj_ids:
             _logger.debug("Start synchro of %s", obj_rec.name)
             dt = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -260,7 +252,7 @@ class BaseSynchro(models.TransientModel):
         end_date = time.strftime('%Y-%m-%d, %Hh %Mm %Ss')
 
         # Creating res.request for summary results
-        if self.user_id:
+        if syn_obj.user_id:
             request = self.env['res.request']
             if not self.report:
                 self.report.append('No exception.')
@@ -279,9 +271,9 @@ Exceptions:
             summary += '\n'.join(self.report)
             request.create({
                 'name': "Synchronization report",
-                'act_from': self.env.user.id,
+                'act_from': self.user_id.id,
                 'date': time.strftime('%Y-%m-%d, %H:%M:%S'),
-                'act_to': self.user_id.id,
+                'act_to': syn_obj.user_id.id,
                 'body': summary,
             })
             return {}

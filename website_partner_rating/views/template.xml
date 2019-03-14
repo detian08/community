@@ -37,7 +37,7 @@
 
 		<template id="website_partner_content_comment" inherit_id="website_crm_partner_assign.partner"
 			name="Partner Rating Top" >
-			<xpath expr="//div[@class='col-lg-5']" position="after">
+			<xpath expr="//div[@class='col-md-5']" position="after">
 
 				<input id="total_comment" t-att-value="len(partner.website_message_ids)"
 					name="total_comment" type="hidden" />
@@ -277,8 +277,8 @@
 
 <hr class="mb32" />
 				<t t-if="website.user_id == user_id">
-					<p style="margin-top: 50px !important;
-margin-bottom: 5px;">
+					<p style="margin-top: 48px !important;
+margin-bottom: -10px;">
 						Please
 						<a t-attf-href="/web/login?redirect=/partners/#{slug(partner)}">Sign in</a>
 						to rate this Partner
@@ -414,11 +414,6 @@ margin-bottom: 5px;">
 						</div>
 					</form>
 				</t>
-</template>
-<template id="resellers_link" inherit_id="website.layout" name="Footer Newsletter Link">
-	<xpath expr="//div[@id='connect']/ul[@class='list-unstyled']/li" position="after">
-	<a href="/partners">Resellers</a>
-	</xpath>
 </template>
      </data>
 </odoo>

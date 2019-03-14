@@ -6,7 +6,7 @@
     'category': 'Website',
     'summary': 'Website Customet/Partner Rating',
     'website': 'www.browseinfo.in',
-    'version': '12.0.0.0',
+    'version': '11.0.0.1',
     'description': """
         You can see reviews details with Reviewer name, Rating, Date, Short & Long Description.User can submit their review only when 
     they are logged in. If the user is not logged in, then the system will provide link to login page and once after login user will

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-
+<openerp>
+    <data>
+    
       <record id="sms_compose_view_form" model="ir.ui.view">
           <field name="name">sms.compose.view.form</field>
           <field name="model">sms.compose</field>
@@ -25,4 +26,5 @@
       	  </field>
       </record>
       
-</odoo>
+    </data>
+</openerp>
