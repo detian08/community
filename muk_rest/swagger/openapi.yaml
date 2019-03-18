@@ -1,0 +1,3915 @@
+openapi: '3.0.0'
+
+info:
+  description: >-
+    Download the [REST API](https://www.odoo.com/apps/modules/12.0/muk_rest/)
+    for [Odoo](https://www.odoo.com). </br> </br> Enables a REST API for the
+    Odoo server. The API has routes to authenticate and retrieve a token.
+    Afterwards, a set of routes to interact with the server are provided. The
+    API can be used by any language or framework which can make an HTTP requests
+    and receive responses with JSON payloads and works with both the Community
+    and the Enterprise Edition.
+    <br/><br/>
+    Note that the authentication routes are for example and information only. To login to the API please use the 'Authroize' button. This is necessary to test the protected routes. Since the API adheres to the OAuth1 and OAuth2 standards, it is advisable to use an appropriate client. In as well as every programming language you can find a corresponding one. A list of some can be found at this <a href='https://github.com/muk-it/muk_docs/blob/12%2C0/muk_rest/clients/clients.md'>link</a>.
+    <br/><br/>
+    Authentication: Mobile Application Flow<br/>
+    Client ID: MobileApplicationFlowDemoClientKey<br/>
+    User: demo<br/>
+    Password: demo<br/>
+  version: '3.0.0'
+  title: 'MuK REST API for Odoo'
+  contact:
+    name: 'MuK IT'
+    email: 'support@mukit.at'
+    url: 'https://www.mukit.at'
+  license:
+    name: 'Odoo Proprietary License v1.0'
+    url: 'https://www.odoo.com/documentation/user/12.0/legal/licenses/licenses.html#licenses'
+externalDocs:
+  description: 'Clients and Examples'
+  url: 'https://github.com/muk-it/muk_docs/tree/12%2C0/muk_rest'
+  
+tags:
+  - name: Authentication 
+  - name: System
+  - name: Model
+  - name: Security
+  - name: Database
+    
+servers:
+  - url: 'https://demo12.mukit.at'
+    description: Demo server (uses demo data)
+    
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: OAuth2 Authentication
+      flows:
+        implicit:
+          authorizationUrl: 'https://demo12.mukit.at/api/authentication/oauth2/authorize'
+          refreshUrl: 'https://demo12.mukit.at/api/authentication/oauth2/token'
+          scopes:
+            all: Basic security settings without additional restrictions
+
+paths:
+  /api/authentication/oauth1/initiate:
+    post:
+      tags:
+        - Authentication
+      summary: OAuth1 - Temporary Credentials Acquisition
+      description: >-
+        OAuth Authentication as described by <a href='https://tools.ietf.org/html/rfc5849'>RFC5849</a>.
+        <br/>
+        The first step to authorization is acquiring temporary credentials. The values are passed by an authentication header. The following values must be provided to initiate a OAuth1 authentication:
+        <br/>
+        <ul>
+          <li>
+            <strong>Realm (realm)</strong>
+            The realm argument is used to determine the corresponding access control. In case the OAuth setting was created with 'Basic Access Control' the value 'all' can be passed.
+          </li>
+          <li>
+            <strong>Consumer Key (oauth_consumer_key)</strong>
+            The key that was created in Odoo to authenticate the client
+          </li>
+          <li>
+            <strong>Signature Method (oauth_signature_method)</strong> 
+            The signature method used by the consumer to sign the request.
+          </li>
+          <li>
+            <strong>Callback (oauth_callback)</strong>
+            An absolute URL to which the Server refers the user back when the authorization process is completed.
+          </li>
+          <li>
+            <strong>Nonce (oauth_nonce)</strong> 
+            A randomly selected value provided by the application which is unique to each authorization request.
+          </li>
+          <li><strong>Timestamp (oauth_timestamp)</strong> The timestamp value must be a positive integer and must be equal to or greater than the timestamp used in previous queries.</li>
+          <li><strong>Signature (oauth_signature)</strong> Base64-encoded HMAC-SHA256 signature signed with the client's private key containing all components of the OAuth request.</li>
+          <li><strong>Version (oauth_version)</strong> The authentication version is optional, but if specified it must be '1.0'.</li>
+        </ul>
+        <pre><code>POST /api/authentication/oauth1/initiate HTTP/1.1
+        
+        Host: server.example.com 
+        
+        Authorization: OAuth realm="Example",
+          oauth_consumer_key="OAuthDemoClientKey",
+          oauth_signature_method="HMAC-SHA1",
+          oauth_timestamp="3453457951239012903812903",
+          oauth_nonce="7d8f3e4a",
+          oauth_callback="https://client.example.com/callback",
+          oauth_signature="KbLt0XDSAVjljXhMJHmmpWxHkFnfs",
+          oauth_version='1.0'
+        </code></pre>
+      parameters:
+        - name: Authorization
+          description: OAuth Authorization
+          in: header
+          required: true
+          example: >-
+            OAuth realm="Example",
+            oauth_consumer_key="OAuthDemoClientKey",
+            oauth_signature_method="HMAC-SHA1",
+            oauth_timestamp="3453457951239012903812903",
+            oauth_nonce="7d8f3e4a",
+            oauth_callback="https%3A%2F%2F127.0.0.1%2Fcallback",
+            oauth_signature="KbLt0XDSAVjljXhMJHmmpWxHkFnfs",
+            oauth_version='1.0'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Temporary Credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  color:
+                    type: string
+                example:
+                  oauth_token: mXYKtuv8k3NJfnpLMpU3KFuEijXx2Aat
+                  oauth_token_secret: QAlvAmzyULWeitpe24oNhj3n91los7W5
+  /api/authentication/oauth1/authorize:
+    get:
+      tags:
+        - Authentication
+      summary: OAuth1 - Authorization
+      description: >-
+        OAuth Authentication as described by <a href='https://tools.ietf.org/html/rfc5849'>RFC5849</a>.
+        <br/>
+        Allows the user to enter the credentials to authenticate with the Odoo server.
+      parameters:
+        - name: oauth_token
+          description: Token
+          in: query
+          required: true
+          example: mXYKtuv8k3NJfnpLMpU3KFuEijXx2Aat
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Verifier
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  color:
+                    type: string
+                example:
+                  oauth_token: mXYKtuv8k3NJfnpLMpU3KFuEijXx2Aat
+                  oauth_verifier: sdflk3450FASDLJasd2349dfs
+  /api/authentication/oauth1/token:
+    post:
+      tags:
+        - Authentication
+      summary: OAuth1 - Token Exchange
+      description: >-
+        OAuth Authentication as described by <a href='https://tools.ietf.org/html/rfc5849'>RFC5849</a>.
+        <br/>
+        Exchange the temporary credentials with the access token. The values are passed by an authentication header. The following values must be provided to authenticate via OAuth1:
+        <br/>
+        <ul>
+          <li>
+            <strong>Realm (realm)</strong>
+            The realm argument is used to determine the corresponding access control. In case the OAuth setting was created with 'Basic Access Control' the value 'all' can be passed.
+          </li>
+          <li>
+            <strong>Consumer Key (oauth_consumer_key)</strong>
+            The key that was created in Odoo to authenticate the client
+          </li>
+          <li>
+            <strong>Request Token (oauth_token)</strong>
+            The Request Token obtained by the inital request.
+          </li>
+          <li>
+            <strong>Verifier (oauth_verifier)</strong> 
+            The verification code received from the Server.
+          </li>
+          <li>
+            <strong>Signature Method (oauth_signature_method)</strong> 
+            The signature method used by the consumer to sign the request.
+          </li>
+          <li>
+            <strong>Nonce (oauth_nonce)</strong> 
+            A randomly selected value provided by the application which is unique to each authorization request.
+          </li>
+          <li><strong>Timestamp (oauth_timestamp)</strong> The timestamp value must be a positive integer and must be equal to or greater than the timestamp used in previous queries.</li>
+          <li><strong>Signature (oauth_signature)</strong> Base64-encoded HMAC-SHA256 signature signed with the client's private key containing all components of the OAuth request.</li>
+          <li><strong>Version (oauth_version)</strong> The authentication version is optional, but if specified it must be '1.0'.</li>
+        </ul>
+        <pre><code>POST /api/authentication/oauth1/token HTTP/1.1
+        
+        Host: server.example.com 
+        
+        Authorization: OAuth realm="Example",
+         oauth_consumer_key='OAuthDemoClientKey',
+         oauth_token='mXYKtuv8k3NASDWE34121KFuEijXx2Aat',
+         oauth_nonce='345345345345345435345345345345345',
+         oauth_signature_method='HMAC-SHA1',
+         oauth_timestamp='1500777189',
+         oauth_verifier='sdflk3450FAasdDSG349dfs',
+         oauth_signature='KbLt0XDVqwejXhMJHmmpWxHTDFASDF',
+         oauth_version='1.0'
+        </code></pre>
+      parameters:
+        - name: Authorization
+          description: OAuth Authorization
+          in: header
+          required: true
+          example: >-
+            OAuth oauth_consumer_key="OAuthDemoClientKey",
+            oauth_token="mXYKtuv8k3NASDWE34121KFuEijXx2Aat",
+            oauth_signature_method="HMAC-SHA1",
+            oauth_timestamp="1500777189",
+            oauth_nonce="345345345345345435345345345345345",
+            oauth_verifier="sdflk3450FAasdDSG349dfs",
+            oauth_signature="KbLt0XDSAVjljXhMJHmmpWxHkFnfs",
+            oauth_version='1.0'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Access Token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  color:
+                    type: string
+                example:
+                  oauth_token: RF7gImCv0B58eogLiPmOmNPizZEVVUWP
+                  oauth_token_secret: oxBUTIjTl8gfbxEv2jpXo5rRtQ16u3Lg
+  /api/authentication/oauth2/authorize:
+    get:
+      tags:
+        - Authentication
+      summary: OAuth2 - Authorization
+      description: >-
+        OAuth Authentication as described by <a href='https://tools.ietf.org/html/rfc6749'>RFC6749</a>.
+        <br/>
+        The values are passed by an authentication header. The following values must be provided to authorize a OAuth2 authentication. The Web Application Flow is taken as an example but the API supports all 4 OAuth2 Grant Types.
+        <br/>
+        <ul>
+          <li>
+            <strong>Scope (scope)</strong>
+            The scope argument is used to determine the corresponding access control. In case the OAuth setting was created with 'Basic Access Control' the value 'all' can be passed.
+          </li>
+          <li>
+            <strong>Client ID (client_id)</strong>
+            The key that was created in Odoo to authenticate the client
+          </li>
+          <li>
+            <strong>Callback (redirect_uri)</strong>
+            An absolute URL to which the Server refers the user back when the authorization process is completed.
+          </li>
+          <li>
+            <strong>Grant Type (response_type)</strong>
+            The grant type used for the authentication flow.
+          </li>
+        </ul>
+        <pre><code>POST /api/authentication/oauth1/token HTTP/1.1
+        
+        Host: server.example.com 
+        
+        Authorization: OAuth scope='Example'
+          client_id='uwCrAHAQbL7D9cvJLIztNaZ0bziEGMDh',
+          state='Y1Ux1iNPvn6KYQK5Lj84WJ9VJrQw1L',
+          redirect_uri='https://client.example.com/callback',
+          response_type='code'
+        </code></pre>
+      parameters:
+        - name: Authorization
+          description: OAuth Authorization
+          in: header
+          required: true
+          example: >-
+            OAuth scope='Example'
+            client_id='uwCrAHAQbL7D9cvJLIztNaZ0bziEGMDh',
+            state='Y1Ux1iNPvn6KYQK5Lj84WJ9VJrQw1L',
+            redirect_uri='https://client.example.com/callback',
+            response_type='code'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Authorization Code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  color:
+                    type: string
+                example:
+                  code: dcee1806d2c50d0fb598
+                  state: Y1Ux1iNPvn6KYQK5Lj84WJ9VJrQw1L
+  /api/authentication/oauth2/token:
+    post:
+      tags:
+        - Authentication
+      summary: OAuth2 - Token Credentials
+      description: >-
+        OAuth Authentication as described by <a href='https://tools.ietf.org/html/rfc6749'>RFC6749</a>.
+        <br/>
+        Fetches the access token from the server. The values are passed by an authentication header. The following values must be provided to authorize a OAuth2 authentication. The Web Application Flow is taken as an example but the API supports all 4 OAuth2 Grant Types.
+        <br/>
+        <ul>
+          <li>
+            <strong>Scope (scope)</strong>
+            The scope argument is used to determine the corresponding access control. In case the OAuth setting was created with 'Basic Access Control' the value 'all' can be passed.
+          </li>
+          <li>
+            <strong>Client ID (client_id)</strong>
+            The key that was created in Odoo to authenticate the client
+          </li>
+          <li>
+            <strong>Client Secret (client_secret)</strong>
+            The secret that was created in Odoo to authenticate the client
+          </li>
+          <li>
+            <strong>Callback (redirect_uri)</strong>
+            An absolute URL to which the Server refers the user back when the authorization process is completed.
+          </li>
+          <li>
+            <strong>Code (code)</strong>
+            Authorization code the consumer must use to obtain the access and refresh tokens.
+          </li>
+          <li>
+            <strong>Grant Type (grant_type)</strong>
+            The grant type used for the authentication flow.
+          </li>
+        </ul>
+        <pre><code>POST /api/authentication/oauth1/token HTTP/1.1
+        
+        Host: server.example.com 
+        
+        Authorization: OAuth scope='Example'
+          client_id='uwCrAHAQbL7D9cvJLIztNaZ0bziEGMDh',
+          state='Y1Ux1iNPvn6KYQK5Lj84WJ9VJrQw1L',
+          redirect_uri='https://client.example.com/callback',
+          response_type='code'
+        </code></pre>
+      parameters:
+        - name: Authorization
+          description: OAuth Authorization
+          in: header
+          required: true
+          example: >-
+            OAuth scope='Example'
+            client_id='uwCrAHAQbL7D9cvJLIztNaZ0bziEGMDh',
+            client_secret='FtHzOQVEs0aSEL9AXuIe9k7X6E2MekU7',
+            redirect_uri='https%3A%2F%2F127.0.0.1%2Fcallback',
+            code='dcee1806d2c50d0fb598'
+            grant_type='authorization_code'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Authorization Code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  color:
+                    type: string
+                example:
+                  access_token: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIn
+                  token_type: bearer
+                  expires_in: '7/20/2017 12:00:05'
+                  refresh_token: ZXIiLCJnaXZlbl9uYW1lIjoiRnJhbmsifQ
+  /api/authentication/oauth2/revoke:
+    post:
+      tags:
+        - Authentication
+      summary: OAuth2 - Revoke Token
+      description: Revokes the access token.
+      parameters:
+        - name: client_id
+          description: Client ID
+          in: query
+          required: true
+          example: uwCrAHAQbL7D9cvJLIztNaZ0bziEGMDh
+          schema:
+            type: string
+        - name: token
+          description: Access Token
+          in: query
+          required: true
+          example: dcee1806d2c50d0fb598
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Token successfully revoked
+  /api:
+    get:
+      tags:
+        - System
+      summary: Version
+      description: Request system information.
+      responses:
+        '200':
+          description: System information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api_version:
+                    type: integer
+                    format: int32
+                    description: Version
+                    example: '3'
+                  server_serie:
+                    type: string
+                    description: Server Serie
+                    example: '12.0'
+                  server_version:
+                    type: string
+                    description: Server Version
+                    example: 12.0-20180122
+                  server_version_info:
+                    type: array
+                    description: Info
+                    items:
+                      oneOf:
+                        - type: string
+                        - type: integer
+                    example: [12, 0, 0, "final",  0, ""]
+  /api/countries:
+    get:
+      tags:
+        - System
+      summary: Countries
+      description: List of available countries.
+      responses:
+        '200':
+          description: List of countries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: array
+                  description: Tuple
+                  items:
+                    type: string
+              example: [['af', 'Afghanistan'], ['al', 'Albania'], ['dz', 'Algeria'], ['...', '...']]
+  /api/languages:
+    get:
+      tags:
+        - System
+      summary: Languages
+      description: List of available languages.
+      responses:
+        '200':
+          description: List of languages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: array
+                  description: Tuple
+                  items:
+                    type: string
+              example: [['sq_AL', 'Albanian'], ['am_ET', 'Amharic'], ['...', '...']]
+  /api/modules:
+    get:
+      tags:
+        - System
+      summary: Modules
+      description: List of available modules.
+      responses:
+        '200':
+          description: List of modules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  description: Tuple
+                  type: string
+              example: ['base', 'web', 'base_import', 'web_settings_dashboard', 'iap', '...']
+  /api/user:
+    get:
+      tags:
+        - System
+      summary: User
+      description: User information.
+      responses:
+        '200':
+          description: User
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uid:
+                    type: integer
+                    format: int32
+                    description: UID
+                    example: 3
+                  name:
+                    type: string
+                    description: Name
+                    example: 'Max'
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+      security:
+        - OAuth2:
+            - all
+  /api/userinfo:
+    get:
+      tags:
+        - System
+      summary: User
+      description: User information.
+      responses:
+        '200':
+          description: User
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: object
+                    properties:
+                      country:
+                        type: string
+                        description: Country
+                        example: 'United States'
+                      formatted:
+                        type: string
+                        description: Formatted
+                        example: 'YourCompany\n215 Vine St\n\nScranton PA 18503\nUnited States'
+                      locality:
+                        type: string
+                        description: Locality
+                        example: 'Scranton'
+                      postal_code:
+                        type: string
+                        description: Postal Code
+                        example: '18503'
+                      region:
+                        type: string
+                        description: Region
+                        example: 'Pennsylvania'
+                      street_address:
+                        type: string
+                        description: Street Address
+                        example: '215 Vine St'
+                  email:
+                    type: string
+                    description: Email
+                    example: 'admin@yourcompany.example.com'
+                  locale:
+                    type: string
+                    description: Locale
+                    example: 'en_US'
+                  name:
+                    type: string
+                    description: Name
+                    example: 'Mitchell Admin'
+                  phone_number:
+                    type: string
+                    description: Phone Number
+                    example: '+1 555-555-5555'
+                  picture:
+                    type: string
+                    description: Picture
+                    example: 'data:image/jpg;base64,/9j/4AA...'
+                  sub:
+                    type: integer
+                    format: int32
+                    description: SUB
+                    example: 3
+                  updated_at:
+                    type: string
+                    description: Updated
+                    example: '2018-12-13'
+                  username:
+                    type: string
+                    description: Username
+                    example: 'admin'
+                  website:
+                    type: string
+                    description: Website
+                    example: 'https://www.mukit.at'
+                  zoneinfo:
+                    type: string
+                    description: Zoneinfo
+                    example: 'Europe/Brussels'
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+      security:
+        - OAuth2:
+            - all          
+  /api/session:
+    get:
+      tags:
+        - System
+      summary: Session
+      description: Session information.
+      responses:
+        '200':
+          description: Session
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  companies: 
+                    type: boolean
+                    description: Companies flag
+                    example: false
+                  company_id: 
+                    type: integer
+                    format: int32
+                    description: Company
+                    example: 1
+                  context:
+                    type: object
+                    properties:
+                      lang:
+                        type: string
+                        description: Language
+                        example: 'en_US'
+                      tz: 
+                        type: string
+                        description: Timezone
+                        example: 'Europe/Brussels'
+                      uid: 
+                        type: integer
+                        format: int32
+                        description: UID
+                        example: 3
+                  currencies:
+                    example: {'1': {'digits': [69, 2], 'position': 'after', 'symbol': '€'}}
+                  db: 
+                    type: string
+                    description: Name
+                    example: 'demo'
+                  display_name:
+                    type: string
+                    description: Name
+                    example: 'YourCompany, Mitchell Admin'
+                  is_admin: 
+                    type: boolean
+                    description: Companies flag
+                    example: false
+                  is_system: 
+                    type: boolean
+                    description: Companies flag
+                    example: false
+                  login: 
+                    type: string
+                    description: Name
+                    example: 'demo'
+                  name: 
+                    type: string
+                    description: Name
+                    example: 'Mitchell Admin'
+                  partner_id: 
+                      type: integer
+                      format: int32
+                      description: UID
+                      example: 4
+                  uid: 
+                      type: integer
+                      format: int32
+                      description: UID
+                      example: 3
+                  web.base.url: 
+                    type: string
+                    description: Name
+                    example: 'http://127.0.0.1:8069'
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+      security:
+        - OAuth2:
+            - all
+  /api/call/{model}:
+    post:
+      tags:
+        - System
+      summary: Call
+      description: Generic method call.
+      parameters:
+        - name: model
+          description: Model in the environment
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: method
+          description: Method to call
+          in: query
+          required: true
+          example: copy
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          required: false
+          example: '[2]'
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+          example: '{"bin_size": "True"}'
+        - name: args
+          description: Arguments
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: kwargs
+          description: Arguments
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+            description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/call/{model}/{method}:
+    post:
+      tags:
+        - System
+      summary: Call
+      description: Generic method call.
+      parameters:
+        - name: model
+          description: Model in the environment
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: method
+          description: Method to call
+          in: path
+          required: true
+          example: copy
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          required: false
+          example: '[2]'
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+          example: '{"bin_size": "True"}'
+        - name: args
+          description: Arguments
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: kwargs
+          description: Arguments
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+            description: Result 
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all   
+  /api/binary/{xmlid}:
+    get:
+      tags:
+        - System
+      summary: Binary
+      description: Download binary content.
+      parameters:
+        - name: xmlid
+          description: XML-ID
+          in: path
+          required: true
+          example: 383-d1f5999
+          schema:
+            type: string
+        - name: model
+          description: Model
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: id
+          description: ID
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: field
+          description: Field
+          in: query
+          required: false
+          example: datas
+          schema:
+            type: string
+        - name: unique
+          description: Unique flag
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+        - name: filename
+          description: Filename
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: filename_field
+          description: Filename Field
+          in: query
+          required: false
+          example: datas_fname
+          schema:
+            type: string
+        - name: mimetype
+          description: Mimetype
+          in: query
+          required: false
+          example: image/png
+          schema:
+            type: string
+        - name: access_token
+          description: Access Token
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: related_id
+          description: Related ID
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: access_mode
+          description: Access Mode
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: file_response
+          description: Response Format
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content: 
+                    type: string
+                    description: Base64-Content
+                    example: ZGF0Y...
+                  filename: 
+                    type: string
+                    description: Filename
+                    example: image.png
+                  content_disposition: 
+                    type: string
+                    description: Content-Disposition
+                    example: attachment; filename*=UTF-8''Image.png
+                  content_type: 
+                    type: string
+                    description: Content-Type
+                    example: image/png
+                  content_length: 
+                    type: integer
+                    format: int32
+                    description: Content-Length
+                    example: 10
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all   
+  /api/binary/{xmlid}/{filename}:
+    get:
+      tags:
+        - System
+      summary: Binary
+      description: Download binary content.
+      parameters:
+        - name: xmlid
+          description: XML-ID
+          in: path
+          required: true
+          example: 383-d1f5999
+          schema:
+            type: string
+        - name: model
+          description: Model
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: id
+          description: ID
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: field
+          description: Field
+          in: query
+          required: false
+          example: datas
+          schema:
+            type: string
+        - name: unique
+          description: Unique flag
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+        - name: filename
+          description: Filename
+          in: path
+          required: true
+          example: filename.png
+          schema:
+            type: string
+        - name: filename_field
+          description: Filename Field
+          in: query
+          required: false
+          example: datas_fname
+          schema:
+            type: string
+        - name: mimetype
+          description: Mimetype
+          in: query
+          required: false
+          example: image/png
+          schema:
+            type: string
+        - name: access_token
+          description: Access Token
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: related_id
+          description: Related ID
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: access_mode
+          description: Access Mode
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+        - name: file_response
+          description: Response Format
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content: 
+                    type: string
+                    description: Base64-Content
+                    example: ZGF0Y...
+                  filename: 
+                    type: string
+                    description: Filename
+                    example: image.png
+                  content_disposition: 
+                    type: string
+                    description: Content-Disposition
+                    example: attachment; filename*=UTF-8''Image.png
+                  content_type: 
+                    type: string
+                    description: Content-Type
+                    example: image/png
+                  content_length: 
+                    type: integer
+                    format: int32
+                    description: Content-Length
+                    example: 10
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all   
+  /api/binary/{id}:
+    get:
+      tags:
+        - System
+      summary: Binary
+      description: Download binary content.
+      parameters:
+        - name: xmlid
+          description: XML-ID
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: model
+          description: Model
+          in: query
+          required: false
+          example: ir.attachment
+          schema:
+            type: string
+        - name: id
+          description: ID
+          in: path
+          required: true
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: field
+          description: Field
+          in: query
+          required: false
+          example: datas
+          schema:
+            type: string
+        - name: unique
+          description: Unique flag
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+        - name: filename
+          description: Filename
+          in: query
+          required: false
+          example: filename.png
+          schema:
+            type: string
+        - name: filename_field
+          description: Filename Field
+          in: query
+          required: false
+          example: datas_fname
+          schema:
+            type: string
+        - name: mimetype
+          description: Mimetype
+          in: query
+          required: false
+          example: image/png
+          schema:
+            type: string
+        - name: access_token
+          description: Access Token
+          in: query
+          required: false
+          example: ASD21KSJADKAJI
+          schema:
+            type: string
+        - name: related_id
+          description: Related ID
+          in: query
+          required: false
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: access_mode
+          description: Access Mode
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+        - name: file_response
+          description: Response Format
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content: 
+                    type: string
+                    description: Base64-Content
+                    example: ZGF0Y...
+                  filename: 
+                    type: string
+                    description: Filename
+                    example: image.png
+                  content_disposition: 
+                    type: string
+                    description: Content-Disposition
+                    example: attachment; filename*=UTF-8''Image.png
+                  content_type: 
+                    type: string
+                    description: Content-Type
+                    example: image/png
+                  content_length: 
+                    type: integer
+                    format: int32
+                    description: Content-Length
+                    example: 10
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all   
+  /api/binary/{id}/{filename}:
+    get:
+      tags:
+        - System
+      summary: Binary
+      description: Download binary content.
+      parameters:
+        - name: xmlid
+          description: XML-ID
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: model
+          description: Model
+          in: query
+          required: false
+          example: ir.attachment
+          schema:
+            type: string
+        - name: id
+          description: ID
+          in: path
+          required: true
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: field
+          description: Field
+          in: query
+          required: false
+          example: datas
+          schema:
+            type: string
+        - name: unique
+          description: Unique flag
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+        - name: filename
+          description: Filename
+          in: path
+          required: true
+          example: filename.png
+          schema:
+            type: string
+        - name: filename_field
+          description: Filename Field
+          in: query
+          required: false
+          example: datas_fname
+          schema:
+            type: string
+        - name: mimetype
+          description: Mimetype
+          in: query
+          required: false
+          example: image/png
+          schema:
+            type: string
+        - name: access_token
+          description: Access Token
+          in: query
+          required: false
+          example: ASD21KSJADKAJI
+          schema:
+            type: string
+        - name: related_id
+          description: Related ID
+          in: query
+          required: false
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: access_mode
+          description: Access Mode
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content: 
+                    type: string
+                    description: Base64-Content
+                    example: ZGF0Y...
+                  filename: 
+                    type: string
+                    description: Filename
+                    example: image.png
+                  content_disposition: 
+                    type: string
+                    description: Content-Disposition
+                    example: attachment; filename*=UTF-8''Image.png
+                  content_type: 
+                    type: string
+                    description: Content-Type
+                    example: image/png
+                  content_length: 
+                    type: integer
+                    format: int32
+                    description: Content-Length
+                    example: 10
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/binary/{id}-{unique}:
+    get:
+      tags:
+        - System
+      summary: Binary
+      description: Download binary content.
+      parameters:
+        - name: xmlid
+          description: XML-ID
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: model
+          description: Model
+          in: query
+          required: false
+          example: ir.attachment
+          schema:
+            type: string
+        - name: id
+          description: ID
+          in: path
+          required: true
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: field
+          description: Field
+          in: query
+          required: false
+          example: datas
+          schema:
+            type: string
+        - name: unique
+          description: Unique flag
+          in: path
+          required: true
+          example: false
+          schema:
+            type: boolean
+        - name: filename
+          description: Filename
+          in: query
+          required: false
+          example: filename.png
+          schema:
+            type: string
+        - name: filename_field
+          description: Filename Field
+          in: query
+          required: false
+          example: datas_fname
+          schema:
+            type: string
+        - name: mimetype
+          description: Mimetype
+          in: query
+          required: false
+          example: image/png
+          schema:
+            type: string
+        - name: access_token
+          description: Access Token
+          in: query
+          required: false
+          example: ASD21KSJADKAJI
+          schema:
+            type: string
+        - name: related_id
+          description: Related ID
+          in: query
+          required: false
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: access_mode
+          description: Access Mode
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content: 
+                    type: string
+                    description: Base64-Content
+                    example: ZGF0Y...
+                  filename: 
+                    type: string
+                    description: Filename
+                    example: image.png
+                  content_disposition: 
+                    type: string
+                    description: Content-Disposition
+                    example: attachment; filename*=UTF-8''Image.png
+                  content_type: 
+                    type: string
+                    description: Content-Type
+                    example: image/png
+                  content_length: 
+                    type: integer
+                    format: int32
+                    description: Content-Length
+                    example: 10
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/binary/{id}-{unique}/{filename}:
+    get:
+      tags:
+        - System
+      summary: Binary
+      description: Download binary content.
+      parameters:
+        - name: xmlid
+          description: XML-ID
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: model
+          description: Model
+          in: query
+          required: false
+          example: ir.attachment
+          schema:
+            type: string
+        - name: id
+          description: ID
+          in: path
+          required: true
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: field
+          description: Field
+          in: query
+          required: false
+          example: datas
+          schema:
+            type: string
+        - name: unique
+          description: Unique flag
+          in: path
+          required: true
+          example: false
+          schema:
+            type: boolean
+        - name: filename
+          description: Filename
+          in: path
+          required: true
+          example: filename.png
+          schema:
+            type: string
+        - name: filename_field
+          description: Filename Field
+          in: query
+          required: false
+          example: datas_fname
+          schema:
+            type: string
+        - name: mimetype
+          description: Mimetype
+          in: query
+          required: false
+          example: image/png
+          schema:
+            type: string
+        - name: access_token
+          description: Access Token
+          in: query
+          required: false
+          example: ASD21KSJADKAJI
+          schema:
+            type: string
+        - name: related_id
+          description: Related ID
+          in: query
+          required: false
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: access_mode
+          description: Access Mode
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content: 
+                    type: string
+                    description: Base64-Content
+                    example: ZGF0Y...
+                  filename: 
+                    type: string
+                    description: Filename
+                    example: image.png
+                  content_disposition: 
+                    type: string
+                    description: Content-Disposition
+                    example: attachment; filename*=UTF-8''Image.png
+                  content_type: 
+                    type: string
+                    description: Content-Type
+                    example: image/png
+                  content_length: 
+                    type: integer
+                    format: int32
+                    description: Content-Length
+                    example: 10
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all   
+  /api/binary/{model}/{id}/{field}:
+    get:
+      tags:
+        - System
+      summary: Binary
+      description: Download binary content.
+      parameters:
+        - name: xmlid
+          description: XML-ID
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: ir.attachment
+          schema:
+            type: string
+        - name: id
+          description: ID
+          in: path
+          required: true
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: field
+          description: Field
+          in: path
+          required: true
+          example: datas
+          schema:
+            type: string
+        - name: unique
+          description: Unique flag
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+        - name: filename
+          description: Filename
+          in: query
+          required: false
+          example: filename.png
+          schema:
+            type: string
+        - name: filename_field
+          description: Filename Field
+          in: query
+          required: false
+          example: datas_fname
+          schema:
+            type: string
+        - name: mimetype
+          description: Mimetype
+          in: query
+          required: false
+          example: image/png
+          schema:
+            type: string
+        - name: access_token
+          description: Access Token
+          in: query
+          required: false
+          example: ASD21KSJADKAJI
+          schema:
+            type: string
+        - name: related_id
+          description: Related ID
+          in: query
+          required: false
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: access_mode
+          description: Access Mode
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content: 
+                    type: string
+                    description: Base64-Content
+                    example: ZGF0Y...
+                  filename: 
+                    type: string
+                    description: Filename
+                    example: image.png
+                  content_disposition: 
+                    type: string
+                    description: Content-Disposition
+                    example: attachment; filename*=UTF-8''Image.png
+                  content_type: 
+                    type: string
+                    description: Content-Type
+                    example: image/png
+                  content_length: 
+                    type: integer
+                    format: int32
+                    description: Content-Length
+                    example: 10
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all  
+  /api/binary/{model}/{id}/{field}/{filename}:
+    get:
+      tags:
+        - System
+      summary: Binary
+      description: Download binary content.
+      parameters:
+        - name: xmlid
+          description: XML-ID
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: ir.attachment
+          schema:
+            type: string
+        - name: id
+          description: ID
+          in: path
+          required: true
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: field
+          description: Field
+          in: path
+          required: true
+          example: datas
+          schema:
+            type: string
+        - name: unique
+          description: Unique flag
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+        - name: filename
+          description: Filename
+          in: path
+          required: true
+          example: filename.png
+          schema:
+            type: string
+        - name: filename_field
+          description: Filename Field
+          in: query
+          required: false
+          example: datas_fname
+          schema:
+            type: string
+        - name: mimetype
+          description: Mimetype
+          in: query
+          required: false
+          example: image/png
+          schema:
+            type: string
+        - name: access_token
+          description: Access Token
+          in: query
+          required: false
+          example: ASD21KSJADKAJI
+          schema:
+            type: string
+        - name: related_id
+          description: Related ID
+          in: query
+          required: false
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: access_mode
+          description: Access Mode
+          in: query
+          required: false
+          example: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content: 
+                    type: string
+                    description: Base64-Content
+                    example: ZGF0Y...
+                  filename: 
+                    type: string
+                    description: Filename
+                    example: image.png
+                  content_disposition: 
+                    type: string
+                    description: Content-Disposition
+                    example: attachment; filename*=UTF-8''Image.png
+                  content_type: 
+                    type: string
+                    description: Content-Type
+                    example: image/png
+                  content_length: 
+                    type: integer
+                    format: int32
+                    description: Content-Length
+                    example: 10
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/reports/{name}:
+    get:
+      tags:
+        - System
+      summary: Reports
+      description: Search for available reports.
+      parameters:
+        - name: name
+          description: Name
+          in: path
+          required: true
+          example: ledger
+          schema:
+            type: string
+        - name: model
+          description: Model
+          in: query
+          required: false
+          example: res.partner
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of available reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int32
+                      description: ID
+                      example: 30
+                    model:
+                      type: string
+                      description: Model
+                      example: ir.model
+                    name:
+                      type: string
+                      description: Name
+                      example: Model Overview
+                    report_name:
+                      type: string
+                      description: Report Name
+                      example: base.report_irmodeloverview
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/reports/{name}/{model}:
+    get:
+      tags:
+        - System
+      summary: Reports
+      description: Search for available reports.
+      parameters:
+        - name: name
+          description: Name
+          in: path
+          required: true
+          example: ledger
+          schema:
+            type: string
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of available reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int32
+                      description: ID
+                      example: 30
+                    model:
+                      type: string
+                      description: Model
+                      example: ir.model
+                    name:
+                      type: string
+                      description: Name
+                      example: Model Overview
+                    report_name:
+                      type: string
+                      description: Report Name
+                      example: base.report_irmodeloverview
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/report/{report}:
+    get:
+      tags:
+        - System
+      summary: Report
+      description: Creates a new report.
+      parameters:
+        - name: report
+          description: Report
+          in: path
+          required: true
+          example: base.report_irmodulereference
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          required: true
+          example: '[1, 2]'
+          schema:
+            type: string
+        - name: type
+          description: Type
+          in: query
+          required: false
+          example: pdf
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: options
+          description: Options
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: string
+                    description: Content
+                    example: CiA=
+                  content_length: 
+                    type: integer
+                    format: int32
+                    description: Content Length
+                    example: 7160
+                  content_type: 
+                    type: string
+                    description: Content Type
+                    example: application/pdf
+                  report: 
+                    type: string
+                    description: Report
+                    example: base.report_irmodulereference
+                  type: 
+                    type: string
+                    description: Type
+                    example: PDF
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/report/{report}/{type}:
+    get:
+      tags:
+        - System
+      summary: Report
+      description: Creates a new report.
+      parameters:
+        - name: report
+          description: Report
+          in: path
+          required: true
+          example: base.report_irmodulereference
+          schema:
+            type: string
+        - name: type
+          description: Type
+          in: path
+          required: true
+          example: html
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          required: true
+          example: '[1, 2]'
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: options
+          description: Options
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: string
+                    description: Content
+                    example: CiA=
+                  content_length: 
+                    type: integer
+                    format: int32
+                    description: Content Length
+                    example: 7160
+                  content_type: 
+                    type: string
+                    description: Content Type
+                    example: application/pdf
+                  report: 
+                    type: string
+                    description: Report
+                    example: base.report_irmodulereference
+                  type: 
+                    type: string
+                    description: Type
+                    example: PDF
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all                  
+  /api/field_names/{model}:
+    get:
+      tags:
+        - Model
+      summary: Field Names
+      description: List of field names.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of field names
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all 
+  /api/fields/{model}:
+    get:
+      tags:
+        - Model
+      summary: Fields
+      description: List of fields.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: attributes
+          description: Attributes
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Field information
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all 
+  /api/metadata/{model}:
+    get:
+      tags:
+        - Model
+      summary: Metadata
+      description: Meta information of a model.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          required: true
+          example: '[1, 2]'
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Meta information
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all 
+  /api/search/{model}:
+    get:
+      tags:
+        - Model
+      summary: Search
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: count
+          description: Count
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: limit
+          description: Limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 80
+        - name: offset
+          description: Offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 0
+        - name: order
+          description: Order
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int32
+                example: [1, 2, 3]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/search/{model}/{order}:
+    get:
+      tags:
+        - Model
+      summary: Search
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: order
+          description: 'Sort string (asc, desc)'
+          in: path
+          required: true
+          example: name desc
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: count
+          description: Count
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: limit
+          description: Limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 80
+        - name: offset
+          description: Offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 0
+      responses:
+        '200':
+          description: IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int32
+                example: [1, 2, 3]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/search/{model}/{limit}/{order}:
+    get:
+      tags:
+        - Model
+      summary: Search
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model in the environment
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: limit
+          description: Limt of the search
+          in: path
+          required: true
+          example: 25
+          schema:
+            type: integer
+            format: int32
+        - name: order
+          description: 'Sort string (asc, desc)'
+          in: path
+          required: true
+          example: name desc
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: count
+          description: Count
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: offset
+          description: Offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 0
+      responses:
+        '200':
+          description: IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int32
+                example: [1, 2, 3]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/search/{model}/{limit}/{offset}/{order}:
+    get:
+      tags:
+        - Model
+      summary: Search
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model in the environment
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: limit
+          description: Limt of the search
+          in: path
+          required: true
+          example: 25
+          schema:
+            type: integer
+            format: int32
+        - name: offset
+          description: Offset of the search
+          in: path
+          required: true
+          example: 1
+          schema:
+            type: integer
+            format: int32
+        - name: order
+          description: 'Sort string (asc, desc)'
+          in: path
+          required: true
+          example: name desc
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: count
+          description: Count
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int32
+                example: [1, 2, 3]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/name/{model}:
+    get:
+      tags:
+        - Model
+      summary: Names
+      description: Get the record names.
+      parameters:
+        - name: model
+          description: Model in the environment
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of ID and name tupels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: array
+                  items:
+                    anyOf:
+                      - type: string
+                      - type: integer
+                example: [[1, "YourCompany"], [2, "System"]]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/read/{model}:
+    get:
+      tags:
+        - Model
+      summary: Read
+      description: Read the given records.
+      parameters:
+        - name: model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          example: "[1, 2]"
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          example: "['name']"
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Contex
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of records with requested data.
+          content:
+            application/json:
+              schema:
+                example: [{id: 1, name: "YourCompany"}]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/search_read/{model}:
+    get:
+      tags:
+        - Model
+      summary: Search
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path          
+          example: res.partner
+          required: true
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          description: Limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 80
+        - name: offset
+          description: Offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 0
+        - name: order
+          description: Order
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of records with requested data.
+          content:
+            application/json:
+              schema:
+                example: [{id: 1, name: "YourCompany"}]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/search_read/{model}/{order}:
+    get:
+      tags:
+        - Model
+      summary: Search
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          example: res.partner
+          required: true
+          schema:
+            type: string
+        - name: order
+          description: Order
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          description: Limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 80
+        - name: offset
+          description: Offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 0
+      responses:
+        '200':
+          description: List of records with requested data.
+          content:
+            application/json:
+              schema:
+                example: [{id: 1, name: "YourCompany"}]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/search_read/{model}/{limit}/{order}:
+    get:
+      tags:
+        - Model
+      summary: Search
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          example: res.partner
+          required: true
+          schema:
+            type: string
+        - name: limit
+          description: Limit
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: order
+          description: Order
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: offset
+          description: Offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 0
+      responses:
+        '200':
+          description: List of records with requested data.
+          content:
+            application/json:
+              schema:
+                example: [{id: 1, name: "YourCompany"}]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/search_read/{model}/{limit}/{offset}/{order}:
+    get:
+      tags:
+        - Model
+      summary: Search
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          example: res.partner
+          required: true
+          schema:
+            type: string
+        - name: limit
+          description: Limit
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: offset
+          description: Offset
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: order
+          description: Order
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of records with requested data.
+          content:
+            application/json:
+              schema:
+                example: [{id: 1, name: "YourCompany"}]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/read_group/{model}:
+    get:
+      tags:
+        - Model
+      summary: Group
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          example: account.move
+          required: true
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          example: "['journal_id.type', 'in', ['cash', 'bank']]"
+          required: true
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          example: "['journal_id', 'amount']"
+          required: true
+          schema:
+            type: string
+        - name: groupby
+          description: Groupby
+          in: query
+          example: ['journal_id']
+          required: true
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: offset
+          description: Offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 0
+        - name: limit
+          description: Limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: orderby
+          description: OrderBy
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: lazy
+          description: Lazy
+          in: query
+          required: false
+          schema:
+            type: boolean
+            example: true
+      responses:
+        '200':
+          description: List of group data.
+          content:
+            application/json:
+              schema:
+                example: [
+                  {
+                    'author_count': 2,
+                    'author': 'MuK IT',
+                    '__domain': ['&', ['author', '=', 'MuK IT'], ['application', '=', True]]
+                  }
+                ]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/read_group/{model}/{orderby}:
+    get:
+      tags:
+        - Model
+      summary: Group
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          example: account.move
+          required: true
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          example: "['journal_id.type', 'in', ['cash', 'bank']]"
+          required: true
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          example: "['journal_id', 'amount']"
+          required: true
+          schema:
+            type: string
+        - name: groupby
+          description: Groupby
+          in: query
+          example: ['journal_id']
+          required: true
+          schema:
+            type: string
+        - name: orderby
+          description: OrderBy
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: offset
+          description: Offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 0
+        - name: limit
+          description: Limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: lazy
+          description: Lazy
+          in: query
+          required: false
+          schema:
+            type: boolean
+            example: true
+      responses:
+        '200':
+          description: List of group data.
+          content:
+            application/json:
+              schema:
+                example: [
+                  {
+                    'author_count': 2,
+                    'author': 'MuK IT',
+                    '__domain': ['&', ['author', '=', 'MuK IT'], ['application', '=', True]]
+                  }
+                ]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/read_group/{model}/{limit}/{orderby}:
+    get:
+      tags:
+        - Model
+      summary: Group
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          example: account.move
+          required: true
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          example: "['journal_id.type', 'in', ['cash', 'bank']]"
+          required: true
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          example: "['journal_id', 'amount']"
+          required: true
+          schema:
+            type: string
+        - name: groupby
+          description: Groupby
+          in: query
+          example: ['journal_id']
+          required: true
+          schema:
+            type: string
+        - name: limit
+          description: Limit
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: orderby
+          description: OrderBy
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: offset
+          description: Offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 0
+        - name: lazy
+          description: Lazy
+          in: query
+          required: false
+          schema:
+            type: boolean
+            example: true
+      responses:
+        '200':
+          description: List of group data.
+          content:
+            application/json:
+              schema:
+                example: [
+                  {
+                    'author_count': 2,
+                    'author': 'MuK IT',
+                    '__domain': ['&', ['author', '=', 'MuK IT'], ['application', '=', True]]
+                  }
+                ]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/read_group/{model}/{limit}/{offset}/{orderby}:
+    get:
+      tags:
+        - Model
+      summary: Group
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          example: account.move
+          required: true
+          schema:
+            type: string
+        - name: domain
+          description: Domain
+          in: query
+          example: "['journal_id.type', 'in', ['cash', 'bank']]"
+          required: true
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          example: "['journal_id', 'amount']"
+          required: true
+          schema:
+            type: string
+        - name: groupby
+          description: Groupby
+          in: query
+          example: ['journal_id']
+          required: true
+          schema:
+            type: string
+        - name: limit
+          description: Limit
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: offset
+          description: Offset
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: orderby
+          description: OrderBy
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: lazy
+          description: Lazy
+          in: query
+          required: false
+          schema:
+            type: boolean
+            example: true
+      responses:
+        '200':
+          description: List of group data.
+          content:
+            application/json:
+              schema:
+                example: [
+                  {
+                    'author_count': 2,
+                    'author': 'MuK IT',
+                    '__domain': ['&', ['author', '=', 'MuK IT'], ['application', '=', True]]
+                  }
+                ]
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/create/{model}:
+    post:
+      tags:
+        - Model
+      summary: Create
+      description: Create a new record.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          example: res.partner
+          required: true
+          schema:
+            type: string
+        - name: values
+          description: Values
+          in: query
+          example: "{'name': 'New Partner'}"
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+      responses: 
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/write/{model}:
+    put:
+      tags:
+        - Model
+      summary: Write
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          example: res.partner
+          required: true
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          example: "[1]"
+          required: false
+          schema:
+            type: string
+        - name: values
+          description: Values
+          in: query
+          example: "{'name': 'New Partner'}"
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/unlink/{model}:
+    delete:
+      tags:
+        - Model
+      summary: Unlink
+      description: Search for matching records.
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          example: res.partner
+          required: true
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          example: "[1]"
+          required: false
+          schema:
+            type: string
+        - name: context
+          description: Context
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/access/rights/{model}:
+    get:
+      tags:
+        - Security
+      summary: Access Rights
+      description: Access Rights Model
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: operation
+          description: Operation
+          in: query
+          required: false
+          schema:
+            type: string
+            example: read
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/access/rights/{model}/{operation}:
+    get:
+      tags:
+        - Security
+      summary: Access Rights
+      description: Access Rights Model
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: operation
+          description: Operation
+          in: path
+          required: true
+          example: read
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/access/rules/{model}:
+    get:
+      tags:
+        - Security
+      summary: Access Rules
+      description: Access Rules Records
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: operation
+          description: Operation
+          in: query
+          required: false
+          schema:
+            type: string
+            example: read
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/access/rules/{model}/{operation}:
+    get:
+      tags:
+        - Security
+      summary: Access Rules
+      description: Access Rules Records
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: operation
+          description: Operation
+          in: path
+          required: true
+          example: read
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/access/fields/{model}:
+    get:
+      tags:
+        - Security
+      summary: Access Fields
+      description: Access Fields Model
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: operation
+          description: Operation
+          in: query
+          required: false
+          schema:
+            type: string
+            example: read
+        - name: fields
+          description: Fields
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/access/fields/{model}/{operation}:
+    get:
+      tags:
+        - Security
+      summary: Access Fields
+      description: Access Fields Model
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: operation
+          description: Operation
+          in: path
+          required: true
+          example: read
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/access/{model}:
+    get:
+      tags:
+        - Security
+      summary: General Access
+      description: General Access
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: operation
+          description: Operation
+          in: query
+          required: false
+          schema:
+            type: string
+            example: read
+        - name: fields
+          description: Fields
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/access/{model}/{operation}:
+    get:
+      tags:
+        - Security
+      summary: General Access
+      description: General Access
+      parameters:
+        - name: model
+          description: Model
+          in: path
+          required: true
+          example: res.partner
+          schema:
+            type: string
+        - name: operation
+          description: Operation
+          in: path
+          required: true
+          example: read
+          schema:
+            type: string
+        - name: ids
+          description: IDs
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: fields
+          description: Fields
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+      security:
+        - OAuth2:
+            - all
+  /api/change_master_password:
+    post:
+      tags:
+        - Database
+      summary: Master Password
+      description: Change Master Password
+      parameters:
+        - name: password_new
+          description: New Password
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: password_old
+          description: Old Password
+          in: query
+          required: false
+          example: admin
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+  /api/database/list:
+    get:
+      tags:
+        - Database
+      summary: Database List
+      description: List Databases
+      responses:
+        '200':
+          description: List of Databases
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  databases:
+                    type: array
+                    items:
+                      type: string
+                      example: db1
+                    description: Databases
+                  incompatible_databases: 
+                    type: array
+                    description: Incompatible Databases
+                    items:
+                      type: string
+                    example: []
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+  /api/database/backup:
+    post:
+      tags:
+        - Database
+      summary: Backup Database
+      description: Backup Database
+      parameters:
+        - name: database_name
+          description: Database Name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: master_password
+          description: Master Password
+          in: query
+          required: false
+          example: admin
+          schema:
+            type: string
+        - name: backup_format
+          description: Format
+          in: query
+          required: false
+          example: zip
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+  /api/database/restore:
+    post:
+      tags:
+        - Database
+      summary: Restore Database
+      description: Restore Database
+      parameters:
+        - name: backup_file
+          description: Filename
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: database_name
+          description: Database Name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: master_password
+          description: Master Password
+          in: query
+          required: false
+          example: admin
+          schema:
+            type: string
+        - name: copy
+          description: Copy
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+  /api/database/create:
+    post:
+      tags:
+        - Database
+      summary: Create Database
+      description: Create Database
+      parameters:
+        - name: database_name
+          description: Database Name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: admin_login
+          description: Admin Login
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: admin_password
+          description: Admin Password
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: master_password
+          description: Master Password
+          in: query
+          required: false
+          example: admin
+          schema:
+            type: string
+        - name: lang
+          description: Language
+          in: query
+          required: false
+          example: en_US
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+  /api/database/duplicate:
+    post:
+      tags:
+        - Database
+      summary: Duplicate Database
+      description: Duplicate Database
+      parameters:
+        - name: database_old
+          description: Old Database
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: database_new
+          description: New Database
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: master_password
+          description: Master Password
+          in: query
+          required: false
+          example: admin
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
+  /api/database/drop:
+    post:
+      tags:
+        - Database
+      summary: Drop Database
+      description: Drop Database
+      parameters:
+        - name: database_name
+          description: Database Name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: master_password
+          description: Master Password
+          in: query
+          required: false
+          example: admin
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+        '400':
+          description: The server could not process the request, probably due to an incorrect request syntax.
+        '401':
+          description: The server could not verify that you are authorized to access the requested URL.
+        '500':
+          description: An error occurred while the request was being processed and therefore it could not be executed completely.
